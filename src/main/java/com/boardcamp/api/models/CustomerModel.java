@@ -1,6 +1,6 @@
 package com.boardcamp.api.models;
 
-import com.boardcamp.api.dtos.GameDTO;
+import com.boardcamp.api.dtos.CustomerDTO;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -8,7 +8,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,28 +16,20 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "games")
-public class GameModel {
-  public GameModel(GameDTO dto) {
+@Table(name = "customers")
+public class CustomerModel {
+  public CustomerModel(CustomerDTO dto) {
     this.name = dto.getName();
-    this.image = dto.getImage();
-    this.stockTotal = dto.getStockTotal();
-    this.pricePerDay = dto.getPricePerDay();
+    this.cpf = dto.getCpf();
   }
 
   @Id
   @GeneratedValue(strategy = GenerationType.SEQUENCE)
   private Long id;
 
-  @Column(nullable = false, unique = true)
+  @Column(nullable = false)
   private String name;
 
-  @Column(columnDefinition = "text", nullable = false)
-  private String image;
-
-  @Column(nullable = false)
-  private Integer stockTotal;
-
-  @Column(nullable = false)
-  private Integer pricePerDay;
+  @Column(nullable = false, unique = true, length = 11)
+  private String cpf;
 }
