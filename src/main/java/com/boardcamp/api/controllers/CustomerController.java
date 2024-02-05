@@ -1,5 +1,6 @@
 package com.boardcamp.api.controllers;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
@@ -14,6 +15,8 @@ import com.boardcamp.api.models.CustomerModel;
 import com.boardcamp.api.services.CustomerService;
 
 import jakarta.validation.Valid;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 @RestController
 @RequestMapping("/customers")
@@ -33,5 +36,16 @@ public class CustomerController {
     }
 
     return ResponseEntity.status(HttpStatus.CREATED).body(customer.get());
+  }
+
+  @GetMapping("/{id}")
+  public ResponseEntity<Object> getCustomerById(@PathVariable Long id) {
+    Optional<CustomerModel> customer = customerService.findCustomerById(id);
+
+    if (!customer.isPresent()) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Nenhum cliente encontrado com o id informado.");
+    }
+
+    return ResponseEntity.status(HttpStatus.OK).body(customer.get());
   }
 }

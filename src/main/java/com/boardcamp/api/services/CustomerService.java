@@ -26,4 +26,14 @@ public class CustomerService {
 
     return Optional.of(customerRepository.save(customer));
   }
+
+  public Optional<CustomerModel> findCustomerById(Long id) {
+    Optional<CustomerModel> customer = customerRepository.findById(id);
+
+    if (!customer.isPresent()) {
+      return Optional.empty();
+    }
+
+    return customer;
+  }
 }
