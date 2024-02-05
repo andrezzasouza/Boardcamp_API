@@ -1,6 +1,5 @@
 package com.boardcamp.api.controllers;
 
-import java.util.List;
 import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
@@ -15,9 +14,12 @@ import com.boardcamp.api.models.CustomerModel;
 import com.boardcamp.api.services.CustomerService;
 
 import jakarta.validation.Valid;
+
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
+@CrossOrigin
 @RestController
 @RequestMapping("/customers")
 public class CustomerController {
