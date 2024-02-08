@@ -32,7 +32,7 @@ public class RentalService {
     return rentalRepository.findAll();
   }
 
-  public Optional<RentalModel> save(RentalDTO dto) {
+  public Optional<Object> save(RentalDTO dto) {
     Optional<GameModel> existingGame = gameRepository.findById((long) dto.getGameId());
     Optional<CustomerModel> existingCustomer = customerRepository.findById((long) dto.getCustomerId());
 
@@ -40,8 +40,18 @@ public class RentalService {
       return Optional.empty();
     }
 
-    RentalModel newRental = new RentalModel(dto, existingCustomer.get(), existingGame.get());
+    if (existingGame.get().getStockTotal() <= 0) {
+      return Optional.of("Jogo indisponível.");
+    }
 
-    return Optional.of(rentalRepository.save(newRental));
+    RentalModel newRental = new RentalModel(dto, existingCustomer.get(), existingGame.get());
+    RentalModel createdRental = rentalRepository.save(newRental);
+    GameModel updatedGameInfo = new GameModel(existingGame.get());
+
+    updatedGameInfo.setId(existingGame.get().getId());
+    updatedGameInfo.setStockTotal(existingGame.get().getStockTotal() - 1);
+    gameRepository.save(updatedGameInfo);
+
+    return Optional.of(createdRental);
   }
 }

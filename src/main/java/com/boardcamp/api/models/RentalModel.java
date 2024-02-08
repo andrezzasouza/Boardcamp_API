@@ -1,8 +1,6 @@
 package com.boardcamp.api.models;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.LocalDate;
 
 import com.boardcamp.api.dtos.RentalDTO;
 
@@ -25,7 +23,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "rentals")
 public class RentalModel {
   public RentalModel(RentalDTO dto, CustomerModel customer, GameModel game) {
-    this.rentDate = this.formatDate(new Date());
+    this.rentDate = LocalDate.now();
     this.daysRented = dto.getDaysRented();
     this.returnDate = null;
     this.originalPrice = game.getPricePerDay() * dto.getDaysRented();
@@ -34,30 +32,18 @@ public class RentalModel {
     this.game = game;
   }
 
-  private Date formatDate(Date currentDate) {
-    SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-    String formattedDateAsString = formatter.format(currentDate);
-
-    try {
-      return formatter.parse(formattedDateAsString);
-    } catch (ParseException e) {
-      e.printStackTrace();
-      return null;
-    }
-  }
-
   @Id
   @GeneratedValue(strategy = GenerationType.SEQUENCE)
   private Long id;
 
   @Column(nullable = false)
-  private Date rentDate;
+  private LocalDate rentDate;
 
   @Column(nullable = false)
   private Integer daysRented;
 
   @Column(nullable = true)
-  private Date returnDate;
+  private LocalDate returnDate;
 
   @Column(nullable = false)
   private Integer originalPrice;

@@ -37,12 +37,16 @@ public class RentalController {
 
   @PostMapping
   public ResponseEntity<Object> addNewRental(@RequestBody @Valid RentalDTO body) {
-    Optional<RentalModel> rental = rentalService.save(body);
+    Optional<Object> rental = rentalService.save(body);
 
     if (!rental.isPresent()) {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuário ou jogo não encontrado com os ids enviados.");
     }
 
-    return ResponseEntity.status(HttpStatus.OK).body(rental.get());
+    if(rental.get().equals("Jogo indisponível.")) {
+      return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body("Jogo indisponível.");
+    }
+
+    return ResponseEntity.status(HttpStatus.CREATED).body(rental.get());
   }
 }
