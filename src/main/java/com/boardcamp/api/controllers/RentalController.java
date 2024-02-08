@@ -17,6 +17,8 @@ import com.boardcamp.api.models.RentalModel;
 import com.boardcamp.api.services.RentalService;
 
 import jakarta.validation.Valid;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 @CrossOrigin
 @RestController
@@ -43,10 +45,25 @@ public class RentalController {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuário ou jogo não encontrado com os ids enviados.");
     }
 
-    if(rental.get().equals("Jogo indisponível.")) {
+    if (rental.get().equals("Jogo indisponível.")) {
       return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body("Jogo indisponível.");
     }
 
     return ResponseEntity.status(HttpStatus.CREATED).body(rental.get());
+  }
+
+  @PutMapping("/{id}/return")
+  public ResponseEntity<Object> returnGame(@PathVariable Long id) {
+    Optional<Object> rental = rentalService.returnGame(id);
+
+    if (!rental.isPresent()) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Nenhum aluguel encontrado com o id informado.");
+    }
+
+    if (rental.get().equals("Aluguel já finalizado.")) {
+      return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body("Essa aluguel já foi finalizado antes e não pode ser finalizado novamente.");
+    }
+
+    return ResponseEntity.status(HttpStatus.OK).body(rental.get());
   }
 }

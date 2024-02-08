@@ -1,6 +1,7 @@
 package com.boardcamp.api.models;
 
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 
 import com.boardcamp.api.dtos.RentalDTO;
 
@@ -30,6 +31,26 @@ public class RentalModel {
     this.delayFee = 0;
     this.customer = customer;
     this.game = game;
+  }
+
+  public RentalModel(RentalModel model) {
+    this.rentDate = model.getRentDate();
+    this.daysRented = model.getDaysRented();
+    this.returnDate = LocalDate.now();
+    this.originalPrice = model.getOriginalPrice();
+    this.delayFee = calculateDelayFee(this.rentDate, this.returnDate, this.daysRented, model.game.getPricePerDay());
+    this.customer = model.getCustomer();
+    this.game = model.getGame();
+  }
+
+  private Integer calculateDelayFee(LocalDate rentDate, LocalDate returnDate, Integer daysRented, Integer pricePerDay) {
+    Integer daysBetweenDates = (int) ChronoUnit.DAYS.between(rentDate, returnDate);
+
+    if (daysBetweenDates <= daysRented) {
+      return 0;
+    }
+
+    return (daysBetweenDates - daysRented) * pricePerDay;
   }
 
   @Id
