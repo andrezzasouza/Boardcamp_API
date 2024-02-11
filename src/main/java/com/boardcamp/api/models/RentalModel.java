@@ -57,26 +57,26 @@ public class RentalModel {
   @GeneratedValue(strategy = GenerationType.SEQUENCE)
   private Long id;
 
-  @Column(nullable = false)
+  @Column(columnDefinition = "DATE DEFAULT CURRENT_DATE", nullable = false)
   private LocalDate rentDate;
 
   @Column(nullable = false)
   private Integer daysRented;
 
-  @Column(nullable = true)
+  @Column(columnDefinition = "DATE DEFAULT NULL")
   private LocalDate returnDate;
 
   @Column(nullable = false)
   private Integer originalPrice;
 
-  @Column(nullable = false)
+  @Column(columnDefinition = "INTEGER DEFAULT 0", nullable = false)
   private Integer delayFee;
 
   @ManyToOne
-  @JoinColumn(name = "customerId")
+  @JoinColumn(name = "customerId", nullable = false)
   private CustomerModel customer;
 
   @ManyToOne
-  @JoinColumn(name = "gameId")
+  @JoinColumn(name = "gameId", nullable = false)
   private GameModel game;
 }
