@@ -1,38 +1,35 @@
 package com.boardcamp.api.services;
 
-import java.util.Optional;
-
 import org.springframework.stereotype.Service;
 
 import com.boardcamp.api.dtos.CustomerDTO;
+import com.boardcamp.api.exceptions.CustomerCpfConflictException;
+import com.boardcamp.api.exceptions.CustomerNotFoundException;
 import com.boardcamp.api.models.CustomerModel;
 import com.boardcamp.api.repositories.CustomerRepository;
 
 @Service
 public class CustomerService {
   CustomerRepository customerRepository;
-  
+
   CustomerService(CustomerRepository customerRepository) {
     this.customerRepository = customerRepository;
   }
 
-  public Optional<CustomerModel> save(CustomerDTO dto) {
+  public CustomerModel save(CustomerDTO dto) {
     CustomerModel customer = new CustomerModel(dto);
     boolean customerExists = customerRepository.existsByCpf(customer.getCpf());
 
     if (customerExists) {
-      return Optional.empty();
+      throw new CustomerCpfConflictException("Este cliente já foi cadastrado antes.");
     }
 
-    return Optional.of(customerRepository.save(customer));
+    return customerRepository.save(customer);
   }
 
-  public Optional<CustomerModel> findCustomerById(Long id) {
-    Optional<CustomerModel> customer = customerRepository.findById(id);
-
-    if (!customer.isPresent()) {
-      return Optional.empty();
-    }
+  public CustomerModel findCustomerById(Long id) {
+    CustomerModel customer = customerRepository.findById(id).orElseThrow(
+        () -> new CustomerNotFoundException("Nenhum cliente encontrado com o id informado."));
 
     return customer;
   }

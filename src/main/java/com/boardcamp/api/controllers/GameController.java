@@ -10,7 +10,6 @@ import com.boardcamp.api.services.GameService;
 import jakarta.validation.Valid;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,18 +29,13 @@ public class GameController {
   }
 
   @PostMapping
-  public ResponseEntity<Object> addNewGame(@RequestBody @Valid GameDTO body) {
-    Optional<GameModel> game = gameService.save(body);
-
-    if (!game.isPresent()) {
-      return ResponseEntity.status(HttpStatus.CONFLICT).body("Este jogo já foi cadastrado antes.");
-    }
-
-    return ResponseEntity.status(HttpStatus.CREATED).body(game.get());
+  public ResponseEntity<GameModel> addNewGame(@RequestBody @Valid GameDTO body) {
+    GameModel game = gameService.save(body);
+    return ResponseEntity.status(HttpStatus.CREATED).body(game);
   }
 
   @GetMapping
-  public ResponseEntity<List<GameModel>> getAllGames () {
+  public ResponseEntity<List<GameModel>> getAllGames() {
     List<GameModel> games = gameService.findAll();
     return ResponseEntity.status(HttpStatus.OK).body(games);
   }

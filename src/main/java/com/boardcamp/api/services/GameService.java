@@ -1,11 +1,11 @@
 package com.boardcamp.api.services;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
 import com.boardcamp.api.dtos.GameDTO;
+import com.boardcamp.api.exceptions.GameNameConflictException;
 import com.boardcamp.api.models.GameModel;
 import com.boardcamp.api.repositories.GameRepository;
 
@@ -17,16 +17,16 @@ public class GameService {
     this.gameRepository = gameRepository;
   }
 
-  public Optional<GameModel> save(GameDTO dto) {
+  public GameModel save(GameDTO dto) {
     boolean gameExists = gameRepository.existsByName(dto.getName());
 
     if (gameExists) {
-      return Optional.empty();
+      throw new GameNameConflictException("Este jogo já foi cadastrado antes.");
     }
 
     GameModel game = new GameModel(dto);
 
-    return Optional.of(gameRepository.save(game));
+    return gameRepository.save(game);
   }
 
   public List<GameModel> findAll() {

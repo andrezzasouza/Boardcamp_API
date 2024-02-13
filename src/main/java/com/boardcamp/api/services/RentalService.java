@@ -1,11 +1,15 @@
 package com.boardcamp.api.services;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
 import com.boardcamp.api.dtos.RentalDTO;
+import com.boardcamp.api.exceptions.CustomerNotFoundException;
+import com.boardcamp.api.exceptions.GameNotFoundException;
+import com.boardcamp.api.exceptions.GameUnavailableException;
+import com.boardcamp.api.exceptions.RentalAlreadyFinishedException;
+import com.boardcamp.api.exceptions.RentalNotFoundException;
 import com.boardcamp.api.models.CustomerModel;
 import com.boardcamp.api.models.GameModel;
 import com.boardcamp.api.models.RentalModel;
@@ -32,50 +36,49 @@ public class RentalService {
     return rentalRepository.findAll();
   }
 
-  public Optional<Object> save(RentalDTO dto) {
-    Optional<GameModel> existingGame = gameRepository.findById((long) dto.getGameId());
-    Optional<CustomerModel> existingCustomer = customerRepository.findById((long) dto.getCustomerId());
+  public RentalModel save(RentalDTO dto) {
+    GameModel existingGame = gameRepository.findById((long) dto.getGameId()).orElseThrow(
+        () -> new GameNotFoundException("Nenhum jogo encontrado com o id informado."));
 
-    if (!existingGame.isPresent() || !existingCustomer.isPresent()) {
-      return Optional.empty();
+    if (existingGame.getStockTotal() <= 0) {
+      throw new GameUnavailableException(
+          "Todas as unidades deste jogo estão alugadas no momento. Ele está indisponível.");
     }
 
-    if (existingGame.get().getStockTotal() <= 0) {
-      return Optional.of("Jogo indisponível.");
-    }
+    CustomerModel existingCustomer = customerRepository.findById((long) dto.getCustomerId()).orElseThrow(
+        () -> new CustomerNotFoundException("Nenhum cliente encontrado com o id informado."));
 
-    RentalModel newRentalInfo = new RentalModel(dto, existingCustomer.get(), existingGame.get());
+    RentalModel newRentalInfo = new RentalModel(dto, existingCustomer, existingGame);
     RentalModel createdRental = rentalRepository.save(newRentalInfo);
-    GameModel updatedGameInfo = new GameModel(existingGame.get());
+    GameModel updatedGameInfo = new GameModel(existingGame);
 
-    updatedGameInfo.setId(existingGame.get().getId());
-    updatedGameInfo.setStockTotal(existingGame.get().getStockTotal() - 1);
+    updatedGameInfo.setId(existingGame.getId());
+    updatedGameInfo.setStockTotal(existingGame.getStockTotal() - 1);
     gameRepository.save(updatedGameInfo);
 
-    return Optional.of(createdRental);
+    return createdRental;
   }
 
-  public Optional<Object> returnGame(Long id) {
-    Optional<RentalModel> rental = rentalRepository.findById(id);
+  public RentalModel finishRental(Long id) {
+    RentalModel rental = rentalRepository.findById(id).orElseThrow(
+        () -> new RentalNotFoundException("Nenhum aluguel encontrado com o id informado."));
 
-    if (!rental.isPresent()) {
-      return Optional.empty();
+    if (rental.getReturnDate() != null) {
+      throw new RentalAlreadyFinishedException(
+          "Esse aluguel já foi finalizado antes e não pode ser finalizado novamente.");
     }
 
-    if (rental.get().getReturnDate() != null) {
-      return Optional.of("Aluguel já finalizado.");
-    }
-
-    RentalModel updatedRentalInfo = new RentalModel(rental.get());
+    RentalModel updatedRentalInfo = new RentalModel(rental);
     updatedRentalInfo.setId(id);
 
     RentalModel updatedRental = rentalRepository.save(updatedRentalInfo);
 
-    GameModel updatedGameInfo = new GameModel(rental.get().getGame());
-    updatedGameInfo.setId(rental.get().getGame().getId());
-    updatedGameInfo.setStockTotal(rental.get().getGame().getStockTotal() + 1);
+    GameModel updatedGameInfo = new GameModel(rental.getGame());
+
+    updatedGameInfo.setId(rental.getGame().getId());
+    updatedGameInfo.setStockTotal(rental.getGame().getStockTotal() + 1);
     gameRepository.save(updatedGameInfo);
 
-    return Optional.of(updatedRental);
+    return updatedRental;
   }
 }

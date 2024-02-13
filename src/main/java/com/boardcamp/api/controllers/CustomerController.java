@@ -1,7 +1,5 @@
 package com.boardcamp.api.controllers;
 
-import java.util.Optional;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -30,24 +28,14 @@ public class CustomerController {
   }
 
   @PostMapping
-  public ResponseEntity<Object> addNewCustomer(@RequestBody @Valid CustomerDTO body) {
-    Optional<CustomerModel> customer = customerService.save(body);
-
-    if (!customer.isPresent()) {
-      return ResponseEntity.status(HttpStatus.CONFLICT).body("Este cliente já foi cadastrado antes.");
-    }
-
-    return ResponseEntity.status(HttpStatus.CREATED).body(customer.get());
+  public ResponseEntity<CustomerModel> addNewCustomer(@RequestBody @Valid CustomerDTO body) {
+    CustomerModel customer = customerService.save(body);
+    return ResponseEntity.status(HttpStatus.CREATED).body(customer);
   }
 
   @GetMapping("/{id}")
-  public ResponseEntity<Object> getCustomerById(@PathVariable Long id) {
-    Optional<CustomerModel> customer = customerService.findCustomerById(id);
-
-    if (!customer.isPresent()) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Nenhum cliente encontrado com o id informado.");
-    }
-
-    return ResponseEntity.status(HttpStatus.OK).body(customer.get());
+  public ResponseEntity<CustomerModel> getCustomerById(@PathVariable Long id) {
+    CustomerModel customer = customerService.findCustomerById(id);
+    return ResponseEntity.status(HttpStatus.OK).body(customer);
   }
 }
