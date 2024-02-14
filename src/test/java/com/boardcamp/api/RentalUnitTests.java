@@ -17,9 +17,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import com.boardcamp.api.dtos.GameDTO;
 import com.boardcamp.api.dtos.RentalDTO;
+import com.boardcamp.api.exceptions.CustomerNotFoundException;
 import com.boardcamp.api.exceptions.GameNotFoundException;
 import com.boardcamp.api.exceptions.GameUnavailableException;
 import com.boardcamp.api.models.GameModel;
+import com.boardcamp.api.models.RentalModel;
 import com.boardcamp.api.repositories.CustomerRepository;
 import com.boardcamp.api.repositories.GameRepository;
 import com.boardcamp.api.repositories.RentalRepository;
@@ -78,6 +80,28 @@ class RentalUnitTests {
         "Todas as unidades deste jogo estão alugadas no momento. Ele está indisponível.", exception.getMessage());
     verify(rentalRepository, times(0)).save(any());
     verify(gameRepository, times(1)).findById(any());
+  }
+
+  @Test
+  void givenCustomerNotFound_whenCreatingRental_thenThrowsException() {
+    Long gameId = 1L;
+    Long customerId = 1L;
+    Integer daysRented = 2;
+
+    RentalDTO rentalDto = new RentalDTO(customerId, gameId, daysRented);
+    GameDTO gameDto = new GameDTO("Name", "http://image.com/example.jpg", 2, 1000);
+    GameModel gameModel = new GameModel(gameDto);
+
+    doReturn(Optional.of(gameModel)).when(gameRepository).findById(any());
+    doReturn(Optional.empty()).when(customerRepository).findById(any());
+
+    CustomerNotFoundException exception = assertThrows(
+        CustomerNotFoundException.class, () -> rentalService.save(rentalDto));
+
+    assertNotNull(exception);
+    assertEquals("Nenhum cliente encontrado com o id informado.", exception.getMessage());
+    verify(rentalRepository, times(0)).save(any());
+    verify(customerRepository, times(1)).findById(any());
   }
 
 }
