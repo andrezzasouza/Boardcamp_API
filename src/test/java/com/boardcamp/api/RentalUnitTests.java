@@ -21,7 +21,6 @@ import com.boardcamp.api.exceptions.CustomerNotFoundException;
 import com.boardcamp.api.exceptions.GameNotFoundException;
 import com.boardcamp.api.exceptions.GameUnavailableException;
 import com.boardcamp.api.models.GameModel;
-import com.boardcamp.api.models.RentalModel;
 import com.boardcamp.api.repositories.CustomerRepository;
 import com.boardcamp.api.repositories.GameRepository;
 import com.boardcamp.api.repositories.RentalRepository;

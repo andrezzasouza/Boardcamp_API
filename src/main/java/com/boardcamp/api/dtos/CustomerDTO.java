@@ -2,9 +2,11 @@ package com.boardcamp.api.dtos;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
+@AllArgsConstructor
 public class CustomerDTO {
   @NotBlank(message = "O nome do cliente deve estar presente e não pode ser nulo nem uma string vazia.")
   private String name;
